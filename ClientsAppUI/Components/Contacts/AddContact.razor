@@ -26,17 +26,22 @@
         </div>
 
         <button type="submit" class="btn btn-primary">Add Contact</button>
+        <button type="reset" class="btn btn-light">Reset</button>
     </EditForm>
 </div>
 
 @code {
     private AddContactDTO addContactDTO { get; set; } = new();
 
+    [Parameter]
+    public Action GetAllContacts { get; set; } = null!;
+
     private async Task AddNewContact()
     {
         try
         {
             await contactService.AddContactAsync(addContactDTO);
+            GetAllContacts();
         }
         catch (DatabaseOperationException ex)
         {

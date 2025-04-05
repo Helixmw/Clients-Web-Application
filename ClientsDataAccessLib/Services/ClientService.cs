@@ -62,11 +62,12 @@ namespace ClientsDataAccessLib.Services
         }
 
         //Get a contact to a client
-        public async Task LinkContactToClientAsync(Guid clientId, Guid contactId)
+        public async Task<bool> LinkContactToClientAsync(Guid clientId, Guid contactId)
         {
             try
             {
-                await _clientRepository.LinkToContactAsync(clientId, contactId);
+                var isLinked = await _clientRepository.LinkToContactAsync(clientId, contactId);
+                return isLinked;
             }
             catch (Exception)
             {

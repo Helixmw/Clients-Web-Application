@@ -40,7 +40,11 @@ namespace ClientsDataAccessLib.Repositories
             var client = _dbContext?.Clients.FirstOrDefault(x => x.ClientId == clientId);
             if (client is not null)
             {
-                await DeleteClientContactsAsync(clientId); //Delete all client contacts first
+                //Unlinks all contacts from the client first
+                var clientContacts = _dbContext?.ClientContacts.Where(x => x.ClientId == clientId).ToList();
+                if(clientContacts is not null)
+                    _dbContext?.ClientContacts.RemoveRange(clientContacts);
+ 
                 _dbContext?.Clients.Remove(client);
                 
                 await SaveChangesAsync();
@@ -87,8 +91,9 @@ namespace ClientsDataAccessLib.Repositories
         }
 
         //Links a contact to a client
-        public async Task LinkToContactAsync(Guid clientId, Guid contactId)
+        public async Task<bool> LinkToContactAsync(Guid clientId, Guid contactId)
         {
+            var isLinked = false; 
             var clientContact = _dbContext?.ClientContacts.Where(x => x.ContactId == contactId && x.ClientId == clientId).FirstOrDefault();
             if(clientContact is null)
             {
@@ -98,12 +103,15 @@ namespace ClientsDataAccessLib.Repositories
                     ContactId = contactId
                 };
                 _dbContext?.ClientContacts.Add(clientContact);
+                isLinked = true;
             }
             else
             {
                 _dbContext?.ClientContacts.Remove(clientContact);
+                isLinked = false;
             }
             await SaveChangesAsync();
+            return isLinked;
         }
 
         //Updates a client

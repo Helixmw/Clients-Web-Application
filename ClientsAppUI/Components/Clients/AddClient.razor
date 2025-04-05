@@ -18,10 +18,14 @@
 
 
     <button type="submit" class="btn btn-primary">Add New Client</button>
+    <button type="reset" class="btn btn-light">Reset</button>
 </EditForm>
 </div>
 @code {
     private AddClientDTO addClientDTO { get; set; } = new();
+
+    [Parameter]
+    public Action GetAllClients { get; set; } = null!;
 
     private async Task AddNewClient()
     {
@@ -29,6 +33,7 @@
         {
             addClientDTO.Code = "SAMPLE123";
             await clientService.AddClientAsync(addClientDTO);
+            GetAllClients();
             var msg = $"Successfully added {addClientDTO.Name}";
             addClientDTO.Name = string.Empty;
             await js.InvokeVoidAsync("alert", msg);

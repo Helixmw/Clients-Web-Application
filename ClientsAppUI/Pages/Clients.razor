@@ -1,39 +1,63 @@
 ﻿@using ClientsAppUI.Components.Clients
 @using ClientsDataAccessLib.DTOs.Clients
+@using ClientsDataAccessLib.DTOs.Contacts
 @using ClientsDataAccessLib.Exceptions
 @using ClientsDataAccessLib.Services
 @page "/Clients"
 @inject IClientService clientService
+@inject IContactService contactService
 @inject IJSRuntime js
 
 @* <h3>Clients</h3> *@
 
 <div class="frame">
     <div class="left">
-        <AddClient/>
+        <AddClient GetAllClients="@GetAllClients"/>
     </div>
     <div class="right">
     </div>
     <div class="bottom">
-        <ClientList Clients="@clients"/>
+        <ClientList Clients="@clients" Contacts="@contacts" GetAllClients="@GetAllClients"/>
     </div>
 </div>
 
 @code {
 
     private IEnumerable<GetClientDTO>? clients { get; set; }
+    private IEnumerable<GetContactDTO>? contacts { get; set; }
 
     protected override void OnInitialized()
+    {
+        GetAllClients();
+        GetAllContacts();
+
+    }
+
+    public void GetAllClients()
     {
         try
         {
             var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
             clients = clientService.GetAllClientsAsync(listParams);
+            StateHasChanged();
         }
         catch (DatabaseOperationException ex)
         {
             js.InvokeVoidAsync("alert", ex.Message);
         }
-   
+    }
+
+    public void GetAllContacts()
+    {
+        try
+        {
+            var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
+            contacts = contactService.GetAllContacts(listParams);
+            StateHasChanged();
+        }
+        catch (DatabaseOperationException ex)
+        {
+            js.InvokeVoidAsync("alert", ex.Message);
+        }
     }
 }

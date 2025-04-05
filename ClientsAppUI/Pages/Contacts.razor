@@ -8,7 +8,7 @@
 
 <div class="frame">
     <div class="left">
-        <AddContact/>
+        <AddContact GetAllContacts="@GetAllContacts"/>
     </div>
     <div class="right">
     </div>
@@ -21,16 +21,22 @@
 
     private IEnumerable<GetContactDTO>? contacts { get; set; }
 
-    protected override async Task OnInitializedAsync()
+    protected override void OnInitialized()
+    {
+        GetAllContacts();
+    }
+
+    public void GetAllContacts()
     {
         try
         {
             var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
-            contacts =  contactService.GetAllContacts(listParams);
+            contacts = contactService.GetAllContacts(listParams);
+            StateHasChanged();
         }
         catch (DatabaseOperationException ex)
         {
-            await js.InvokeVoidAsync("alert", ex.Message);
+            js.InvokeVoidAsync("alert", ex.Message);
         }
     }
 }

@@ -18,6 +18,6 @@ namespace ClientsDataAccessLib.Services
 
         Task DeleteClientAsync(Guid clientId);
 
-        Task LinkContactToClientAsync(Guid clientId, Guid contactId);
+        Task<bool> LinkContactToClientAsync(Guid clientId, Guid contactId);
     }
 }
