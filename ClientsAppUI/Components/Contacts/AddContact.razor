@@ -1,0 +1,46 @@
+﻿@using ClientsDataAccessLib.DTOs.Contacts
+@using ClientsDataAccessLib.Exceptions
+@using ClientsDataAccessLib.Services
+@inject IContactService contactService
+@inject IJSRuntime js 
+
+<div class="card">
+    <h3>Create Contact</h3>
+    <small>Create new contact details.</small>
+    <br />
+    <br />
+    <EditForm Model="@addContactDTO" OnValidSubmit="AddNewContact">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+        <div class="mb-3">
+            <label for="Name" class="form-label">Name*</label>
+            <InputText class="form-control" Placeholder="Enter Name" id="name" @bind-Value="addContactDTO.Name" />
+        </div>
+        <div class="mb-3">
+            <label for="Name" class="form-label">Surname*</label>
+            <InputText class="form-control" id="name" Placeholder="Enter Surname" @bind-Value="addContactDTO.Surname" />
+        </div>
+        <div class="mb-3">
+            <label for="Name" class="form-label">Email*</label>
+            <InputText class="form-control" id="name" Placeholder="Provide an Email Address" @bind-Value="addContactDTO.Email" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Add Contact</button>
+    </EditForm>
+</div>
+
+@code {
+    private AddContactDTO addContactDTO { get; set; } = new();
+
+    private async Task AddNewContact()
+    {
+        try
+        {
+            await contactService.AddContactAsync(addContactDTO);
+        }
+        catch (DatabaseOperationException ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+}

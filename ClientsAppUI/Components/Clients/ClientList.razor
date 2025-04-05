@@ -1,0 +1,55 @@
+﻿@using ClientsDataAccessLib.DTOs.Clients
+@inject IJSRuntime js
+
+@if(Clients is not null){
+<div class="card card-table">
+    <h3>All Clients</h3>
+    <small>Browse through all clients and make changes</small>
+
+    <table class="table" id="clientsTable">
+        <thead>
+            <tr>
+
+                <th scope="col">Name</th>
+                <th scope="col">Code</th>
+                <th scope="col">Total Contacts</th>
+                <th scope="col">&nbsp;</th>
+            </tr>
+        </thead>
+        <tbody>
+
+            @foreach(var client in Clients)
+            {
+                <tr>
+                    <td>@client.Name</td>
+                    <td>@client.Code</td>
+                    <td>@client.TotalContacts</td>
+                    <td class="button-controls">
+                        <div class="table-buttons">
+                            <button type="button" class="btn btn-primary btn-sm">Link Contact</button>
+                            <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                        </div>
+
+                    </td>
+                </tr>
+            }
+           
+
+        </tbody>
+    </table>
+</div>
+}
+
+
+@code {
+    [Parameter]
+    public IEnumerable<GetClientDTO>? Clients { get; set; } 
+
+    // protected override async Task OnAfterRenderAsync(bool firstRender)
+    // {
+    //     if (firstRender)
+    //     {
+    //        await js.InvokeVoidAsync("initializeDataTable");
+    //     }
+    // }
+}

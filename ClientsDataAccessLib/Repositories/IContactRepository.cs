@@ -12,7 +12,7 @@ namespace ClientsDataAccessLib.Repositories
     {
         Task AddAsync(AddContactDTO contact);
 
-        IEnumerable<GetContactDTO> GetAllAsync(ListParameters listParams);
+        IEnumerable<GetContactDTO> GetAll(ListParameters listParams);
 
         Task UpdateAsync(UpdateContactDTO contact);
 

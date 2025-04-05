@@ -1,4 +1,4 @@
-﻿using ClientsAppUI.Data;
+﻿using ClientsDataAccessLib.Data;
 using ClientsDataAccessLib.DTOs.Contacts;
 using ClientsDataAccessLib.Exceptions;
 using ClientsDataAccessLib.Models;
@@ -59,7 +59,7 @@ namespace ClientsDataAccessLib.Repositories
         }
 
         //Gets all contacts
-        public IEnumerable<GetContactDTO> GetAllAsync(ListParameters listParams)
+        public IEnumerable<GetContactDTO> GetAll(ListParameters listParams)
         {
             var contacts = _dbContext?.Contacts
                            .OrderBy(x => x.Name)

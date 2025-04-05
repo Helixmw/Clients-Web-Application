@@ -1,0 +1,50 @@
+﻿@using ClientsDataAccessLib.DTOs.Contacts
+
+@if (Contacts is not null)
+{
+    <div class="card card-table">
+        <h3>All Clients</h3>
+        <small>Browse through all clients and make changes</small>
+
+        <table class="table" id="clientsTable">
+            <thead>
+                <tr>
+
+                    <th scope="col">Name</th>
+                    <th scope="col">Surname</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Total Clients</th>
+                    <th scope="col">&nbsp;</th>
+                </tr>
+            </thead>
+            <tbody>
+
+                @foreach (var contact in Contacts)
+                {
+                    <tr>
+                        <td>@contact.Name</td>
+                        <td>@contact.Surname</td>
+                        <td>@contact.Email</td>
+                        <td>@contact.TotalClients</td>
+                        
+                        <td class="button-controls">
+                            <div class="table-buttons">
+                                <button type="button" class="btn btn-primary btn-sm">Link Client</button>
+                                <button type="button" class="btn btn-danger btn-sm">Delete</button>
+                            </div>
+
+                        </td>
+                    </tr>
+                }
+
+
+            </tbody>
+        </table>
+    </div>
+}
+
+@code {
+    [Parameter]
+
+    public IEnumerable<GetContactDTO>? Contacts { get; set; }
+}

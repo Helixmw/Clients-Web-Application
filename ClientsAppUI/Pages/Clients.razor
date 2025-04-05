@@ -1,0 +1,39 @@
+﻿@using ClientsAppUI.Components.Clients
+@using ClientsDataAccessLib.DTOs.Clients
+@using ClientsDataAccessLib.Exceptions
+@using ClientsDataAccessLib.Services
+@page "/Clients"
+@inject IClientService clientService
+@inject IJSRuntime js
+
+@* <h3>Clients</h3> *@
+
+<div class="frame">
+    <div class="left">
+        <AddClient/>
+    </div>
+    <div class="right">
+    </div>
+    <div class="bottom">
+        <ClientList Clients="@clients"/>
+    </div>
+</div>
+
+@code {
+
+    private IEnumerable<GetClientDTO>? clients { get; set; }
+
+    protected override void OnInitialized()
+    {
+        try
+        {
+            var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
+            clients = clientService.GetAllClientsAsync(listParams);
+        }
+        catch (DatabaseOperationException ex)
+        {
+            js.InvokeVoidAsync("alert", ex.Message);
+        }
+   
+    }
+}

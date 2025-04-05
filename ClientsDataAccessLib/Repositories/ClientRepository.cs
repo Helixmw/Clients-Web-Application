@@ -1,4 +1,4 @@
-﻿using ClientsAppUI.Data;
+﻿using ClientsDataAccessLib.Data;
 using ClientsDataAccessLib.DTOs.Clients;
 using ClientsDataAccessLib.Exceptions;
 using ClientsDataAccessLib.Models;
@@ -48,7 +48,7 @@ namespace ClientsDataAccessLib.Repositories
         }
 
         //Empty from ClientContacts
-        public async Task DeleteClientContactsAsync(Guid clientId)
+        private async Task DeleteClientContactsAsync(Guid clientId)
         {
             var clientContacts = _dbContext?.ClientContacts.Where(c => c.ClientId == clientId).ToList();
             if (clientContacts is not null)

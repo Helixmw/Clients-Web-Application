@@ -1,0 +1,40 @@
+﻿@using ClientsDataAccessLib.DTOs.Clients
+@using ClientsDataAccessLib.Exceptions
+@using ClientsDataAccessLib.Services
+@inject IJSRuntime js
+@inject IClientService clientService
+<div class="card">
+<h3>Create Client</h3>
+<small>Please enter the name of your new client.</small>
+<br />
+<br />
+<EditForm Model="@addClientDTO" OnValidSubmit="AddNewClient">
+    <DataAnnotationsValidator/>
+    <ValidationSummary/>
+    <div class="mb-3">
+        <label for="Name" class="form-label">Client Name*</label>
+            <InputText class="form-control" id="name" Placeholder="Enter Client Name" @bind-Value="addClientDTO.Name" />
+    </div>
+
+
+    <button type="submit" class="btn btn-primary">Add New Client</button>
+</EditForm>
+</div>
+@code {
+    private AddClientDTO addClientDTO { get; set; } = new();
+
+    private async Task AddNewClient()
+    {
+        try
+        {
+            addClientDTO.Code = "SAMPLE123";
+            await clientService.AddClientAsync(addClientDTO);
+            var msg = $"Successfully added {addClientDTO.Name}";
+            addClientDTO.Name = string.Empty;
+            await js.InvokeVoidAsync("alert", msg);
+        }catch(DatabaseOperationException ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+}

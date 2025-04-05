@@ -1,4 +1,5 @@
 ﻿using ClientsDataAccessLib.DTOs.Clients;
+using ClientsDataAccessLib.Utilities;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -11,7 +12,7 @@ namespace ClientsDataAccessLib.Services
     {
         Task AddClientAsync(AddClientDTO client);
 
-        Task<IEnumerable<GetClientDTO>> GetAllClientsAsync();
+        IEnumerable<GetClientDTO> GetAllClientsAsync(ListParameters listParameters);
 
         Task UpdateClientAsync(UpdateClientDTO client);
 

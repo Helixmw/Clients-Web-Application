@@ -1,0 +1,36 @@
+﻿@using ClientsAppUI.Components.Contacts
+@using ClientsDataAccessLib.DTOs.Contacts
+@using ClientsDataAccessLib.Exceptions
+@using ClientsDataAccessLib.Services
+@page "/Contacts"
+@inject IContactService contactService
+@inject IJSRuntime js
+
+<div class="frame">
+    <div class="left">
+        <AddContact/>
+    </div>
+    <div class="right">
+    </div>
+    <div class="bottom">
+        <ContactList Contacts="@contacts"/>
+    </div>
+</div>
+
+@code {
+
+    private IEnumerable<GetContactDTO>? contacts { get; set; }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
+            contacts =  contactService.GetAllContacts(listParams);
+        }
+        catch (DatabaseOperationException ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+}
