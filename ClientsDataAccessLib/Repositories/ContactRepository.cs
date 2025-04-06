@@ -41,7 +41,12 @@ namespace ClientsDataAccessLib.Repositories
             var contact = _dbContext?.Contacts.FirstOrDefault(c => c.ContactId == contactId);
             if (contact is not null)
             {
-                await DeleteContactClientsAsync(contactId); //Delete all contact clients first
+                //Unlink all clients from the contact first
+                var contactClients = _dbContext?.ClientContacts.Where(x =>  x.ContactId == contactId).ToList();
+                if(contactClients is not null)
+                    _dbContext?.ClientContacts.RemoveRange(contactClients);
+
+ 
                 _dbContext?.Contacts.Remove(contact);
                 await SaveChangesAsync();
             }
@@ -97,7 +102,7 @@ namespace ClientsDataAccessLib.Repositories
                 
 
                 contacts = _dbContext?.Contacts
-                                .OrderBy(x => x.Name)
+                                .OrderByDescending(x => x.ContactId)
                                 .AsEnumerable()
                                 .Join(_dbContext.ClientContacts.Where(x => x.ClientId == clientId).ToList(),
                                             cnts => cnts.ContactId,

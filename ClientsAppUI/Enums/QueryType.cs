@@ -2,6 +2,6 @@
 {
     public enum QueryType
     {
-        WithContacts, WithoutContacts
+        WithContacts, WithoutContacts, WithClients, WithoutClients
     }
 }

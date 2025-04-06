@@ -1,5 +1,6 @@
 ﻿using ClientsDataAccessLib.DTOs.Clients;
 using ClientsDataAccessLib.Exceptions;
+using ClientsDataAccessLib.Models;
 using ClientsDataAccessLib.Repositories;
 using ClientsDataAccessLib.Utilities;
 using System;
@@ -121,6 +122,19 @@ namespace ClientsDataAccessLib.Services
             counter++;
 
             return $"{alphaPart}{numericPart}";
+        }
+
+        public IEnumerable<GetClientDTO> GetAllClientsByContactId(Guid contactId)
+        {
+            try
+            {
+                var clients = _clientRepository.GetAllClientsByContactId(contactId);
+                return clients;
+            }
+            catch (Exception)
+            {
+                throw new DatabaseOperationException("Unable to get all clients by contact id", "Contact Operation Failed");
+            }
         }
     }
 }

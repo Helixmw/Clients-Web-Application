@@ -1,4 +1,5 @@
-﻿@using ClientsDataAccessLib.DTOs.Clients
+﻿@using ClientsAppUI.Enums
+@using ClientsDataAccessLib.DTOs.Clients
 @using ClientsDataAccessLib.Exceptions
 @using ClientsDataAccessLib.Services
 @inject IJSRuntime js
@@ -25,18 +26,17 @@
     private AddClientDTO addClientDTO { get; set; } = new();
 
     [Parameter]
-    public Action GetAllClients { get; set; } = null!;
+    public Func<Navigate?, Task> GetAllClients { get; set; } = null!;
 
     private async Task AddNewClient()
     {
         try
         {
-
             await clientService.AddClientAsync(addClientDTO);
-            GetAllClients();
+            await GetAllClients(null);
             var msg = $"Successfully added {addClientDTO.Name}";
             addClientDTO.Name = string.Empty;
-            await js.InvokeVoidAsync("alert", msg);
+           
         }catch(DatabaseOperationException ex)
         {
             await js.InvokeVoidAsync("alert", ex.Message);

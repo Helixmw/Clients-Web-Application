@@ -1,5 +1,6 @@
 ﻿@using ClientsAppUI.Components
 @using ClientsAppUI.Components.Contacts
+@using ClientsAppUI.Enums
 @using ClientsDataAccessLib.DTOs.Contacts
 @using ClientsDataAccessLib.Exceptions
 @using ClientsDataAccessLib.Services
@@ -7,9 +8,11 @@
 @inject IContactService contactService
 @inject IJSRuntime js
 
+<PageTitle>Contacts</PageTitle>
+
 <div class="frame">
     <div class="left">
-         <InfoCard Title="@Title" Description="@Description" LinkAddress="Clients" LinkText="Manage Clients"/>
+        <InfoCard Title="@Title" Description="@Description" LinkAddress="Clients" LinkText="Manage Clients"/>
     </div>
     <div class="right">
         <AddContact GetAllContacts="@GetAllContacts"/>
@@ -24,19 +27,40 @@
 
     public string Description = "Here you can view and manage all the available contact details along with linking them to clients.";
 
-    private IEnumerable<GetContactDTO>? contacts { get; set; }
+    public int PageNumber { get; set; } = 0;
+
+    public IEnumerable<GetContactDTO>? contacts { get; set; }
 
     protected override void OnInitialized()
     {
         GetAllContacts();
+        
     }
 
-    public void GetAllContacts()
+    public void GetAllContacts(Navigate? navigate = null)
     {
         try
         {
             var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
-            contacts = contactService.GetAllContacts(listParams);
+            switch (navigate)
+            {
+                case Navigate.Next:
+                    PageNumber++;
+                    break;
+
+                case Navigate.Previous:
+                    if (PageNumber > 0)
+                    {
+                        PageNumber--;
+                    }
+                    break;
+                default:
+                    PageNumber = 1;
+                    break;
+
+            }
+            listParams.PageNumber = PageNumber == 0 ? 1 : PageNumber;
+            contacts = contactService.GetAllContacts(listParams);    
             StateHasChanged();
         }
         catch (DatabaseOperationException ex)

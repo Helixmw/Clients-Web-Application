@@ -68,7 +68,7 @@ namespace ClientsDataAccessLib.Repositories
         {
 
             var clients = _dbContext?.Clients
-                    .OrderBy(x => x.Name)
+                    .OrderByDescending(x => x.ClientId)
                     .GroupJoin(
                         _dbContext.ClientContacts, // Join Clients with ClientContacts
                         clnts => clnts.ClientId,   // Client key
@@ -129,6 +129,37 @@ namespace ClientsDataAccessLib.Repositories
             {
                 throw new DatabaseOperationException("Unable to update client please try later", "Operation Failed");
             }
+        }
+
+        public IEnumerable<GetClientDTO> GetAllClientsByContactId(Guid contactId)
+        {
+            var clients = new List<GetClientDTO>();
+            var contact = _dbContext?.Contacts.FirstOrDefault(x => x.ContactId == contactId);
+
+            if(contact is null)
+                throw new DatabaseOperationException("Unable to find this contact. Please try later", "Operation Failed");
+
+            clients = _dbContext?.Clients
+                .OrderByDescending(x => x.ClientId)
+                .AsEnumerable()
+                .Join(_dbContext.ClientContacts.Where(x => x.ContactId == contactId).ToList(),
+                    clnts => clnts.ClientId,
+                    clcts => clcts.ClientId,
+                    (clnts, clcts) => {
+                        var count = _dbContext.ClientContacts.Where(x => x.ClientId == clnts.ClientId).Count();
+                       return new GetClientDTO
+                       {
+                           ClientId = clnts.ClientId,
+                           Name = clnts.Name,
+                           Code = clnts.Code,
+                           TotalContacts = count
+                       };
+                    }).ToList();
+
+            if (clients is null)
+                throw new DatabaseOperationException("Unable to get clients please try later", "Operation Failed");
+
+            return clients;
         }
     }
 }

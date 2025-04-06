@@ -1,4 +1,5 @@
-﻿@using ClientsDataAccessLib.DTOs.Contacts
+﻿@using ClientsAppUI.Enums
+@using ClientsDataAccessLib.DTOs.Contacts
 @using ClientsDataAccessLib.Exceptions
 @using ClientsDataAccessLib.Services
 @inject IContactService contactService
@@ -34,14 +35,17 @@
     private AddContactDTO addContactDTO { get; set; } = new();
 
     [Parameter]
-    public Action GetAllContacts { get; set; } = null!;
+    public Action<Navigate?> GetAllContacts { get; set; } = null!;
 
     private async Task AddNewContact()
     {
         try
         {
             await contactService.AddContactAsync(addContactDTO);
-            GetAllContacts();
+            addContactDTO.Name = String.Empty;
+            addContactDTO.Surname = String.Empty;
+            addContactDTO.Email = String.Empty;
+            GetAllContacts(null);
         }
         catch (DatabaseOperationException ex)
         {

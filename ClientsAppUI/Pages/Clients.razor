@@ -1,5 +1,6 @@
 ﻿@using ClientsAppUI.Components
 @using ClientsAppUI.Components.Clients
+@using ClientsAppUI.Enums
 @using ClientsDataAccessLib.DTOs.Clients
 @using ClientsDataAccessLib.DTOs.Contacts
 @using ClientsDataAccessLib.Exceptions
@@ -8,6 +9,8 @@
 @inject IClientService clientService
 @inject IContactService contactService
 @inject IJSRuntime js
+
+<PageTitle>Clients</PageTitle>
 
 @* <h3>Clients</h3> *@
 
@@ -28,41 +31,63 @@
 
     public string Description = "Here you can view and manage all of you clients' information together with linked contact information.";
 
+    public int PageNumber { get; set; } = 0;
+
     private IEnumerable<GetClientDTO>? clients { get; set; }
     private IEnumerable<GetContactDTO>? contacts { get; set; }
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        GetAllClients();
-        GetAllContacts();
+       await GetAllClients();
+       await GetAllContacts();
 
     }
 
-    public void GetAllClients()
+    public async Task GetAllClients(Navigate? navigate = null)
     {
         try
         {
             var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
-            clients = clientService.GetAllClientsAsync(listParams);
+            switch (navigate)
+            {
+                case Navigate.Next:
+                    PageNumber++;
+                    break;
+
+                case Navigate.Previous:
+                    if (PageNumber > 0)
+                    {
+                        PageNumber--;
+                    }
+                    break;
+                default:
+                    PageNumber = 1;
+                    break;
+
+            }
+
+            listParams.PageNumber = PageNumber == 0 ? 1 : PageNumber;
+            clients = await Task.Run(() => clientService.GetAllClientsAsync(listParams));
+           
             StateHasChanged();
         }
         catch (DatabaseOperationException ex)
         {
-            js.InvokeVoidAsync("alert", ex.Message);
+           await js.InvokeVoidAsync("alert", ex.Message);
         }
     }
 
-    public void GetAllContacts()
+    public async Task GetAllContacts()
     {
         try
         {
             var listParams = new ClientsDataAccessLib.Utilities.ListParameters();
-            contacts = contactService.GetAllContacts(listParams);
+            contacts = await Task.Run(() => contactService.GetAllContacts(listParams));
             StateHasChanged();
         }
         catch (DatabaseOperationException ex)
         {
-            js.InvokeVoidAsync("alert", ex.Message);
+            await js.InvokeVoidAsync("alert", ex.Message);
         }
     }
 }

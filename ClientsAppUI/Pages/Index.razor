@@ -1,9 +1,20 @@
 ﻿@page "/"
+@inject NavigationManager Navigation
 
-<PageTitle>Index</PageTitle>
+<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="card card-home">
 
-Welcome to your new app.
+    <div class="card-left">
 
-<SurveyPrompt Title="How is Blazor working for you?" />
+    <h2 class="fw-bold">Manager Portal</h2>
+        <p>
+        Efficiently manage your clients and their contact information in one place. Our platform allows you to seamlessly create and maintain connections between clients and contacts, ensuring smooth communication and organization.
+        </p>
+        <a href="About" class="btn btn-primary" tabindex="-1" title="About Us" role="button" aria-disabled="true">Know More</a>
+    </div>
+    <div class="card-right">
+        <img src="@Navigation.ToAbsoluteUri("images/screenshot.png")" class="home-image"/>
+    </div>
+</div>
+
