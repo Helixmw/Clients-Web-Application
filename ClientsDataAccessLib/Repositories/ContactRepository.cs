@@ -123,8 +123,9 @@ namespace ClientsDataAccessLib.Repositories
         }
 
         //Links a contact to a client
-        public async Task LinkToClientAsync(Guid contactId, Guid clientId)
+        public async Task<bool> LinkToClientAsync(Guid contactId, Guid clientId)
         {
+            var isLinked = false;
             var _contact = _dbContext?.ClientContacts.Where(x => x.ContactId == contactId && x.ClientId == clientId).FirstOrDefault();
             if (_contact is null)
             {
@@ -134,12 +135,16 @@ namespace ClientsDataAccessLib.Repositories
                     ClientId = clientId
                 };
                 _dbContext?.ClientContacts.Add(clientContact);
+                isLinked = true;
             }
             else
             {
                _dbContext?.ClientContacts.Remove(_contact); //Remove the link if it already exists
+                isLinked = false;
             }
            await SaveChangesAsync();
+            return isLinked;
+
         }
 
         //Updates a contact

@@ -1,4 +1,11 @@
-﻿@using ClientsDataAccessLib.DTOs.Contacts
+﻿@using ClientsDataAccessLib.DTOs.Clients
+@using ClientsDataAccessLib.DTOs.Contacts
+@using ClientsDataAccessLib.Exceptions
+@using ClientsDataAccessLib.Services
+@using ClientsDataAccessLib.Utilities
+@inject IClientService clientService
+@inject IContactService contactService
+@inject IJSRuntime js
 
 @if (Contacts is not null)
 {
@@ -29,18 +36,18 @@
                         @* <td>@contact.TotalClients</td> *@
                         <td>
                             <button type="button" class="btn btn-light btn-sm"
-                                    
-                                    data-bs-toggle="modal" data-bs-target="#viewContactsModal">
+
+                            data-bs-toggle="modal" data-bs-target="#viewContactsModal">
                                 Clients &nbsp;<span class="badge bg-success">
                                     @contact.TotalClients
                                 </span>
                             </button>
                         </td>
-                        
+
                         <td class="button-controls">
                             <div class="table-buttons">
                                 <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editClientModal">Edit</button>
-                                <button type="button" class="btn btn-primary btn-sm">Link Client</button>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#linkContactModal" @onclick="() => SetSelectedContact(contact)">Link Client</button>
                                 <button type="button" class="btn btn-danger btn-sm">Delete</button>
                             </div>
 
@@ -54,8 +61,105 @@
     </div>
 }
 
+
+<!-- Link Contact Modal -->
+<div class="modal fade" id="linkContactModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <EditForm Model="@selectedContact">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Link Client To Contact</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+                    @if (Clients is not null)
+                    {
+                        <h4>@selectedContact.Surname @selectedContact.Name</h4>
+                        <h6 class="text-secondary">@selectedContact.Email</h6>
+
+                        <div class="form-floating">
+                            <select class="form-select" id="floatingSelect"
+                            @bind="selectedClient.ClientId"
+                            aria-label="Select contact information to link to this client.">
+                                @* <option selected>Open this select menu</option> *@
+                                <option value="@Guid.Empty" selected>Please select a contact</option>
+                                @foreach (var client in Clients)
+                                {
+                                    <option value="@client.ClientId">@client.Name (@client.Code)</option>
+                                }
+
+                            </select>
+                            <label for="floatingSelect">Select a contact to link this client.</label>
+                        </div>
+
+                    }
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="button" class="btn btn-primary" @onclick="() => LinkClientToContact()">Link Contact</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
+
 @code {
     [Parameter]
 
     public IEnumerable<GetContactDTO>? Contacts { get; set; }
+
+    private GetContactDTO selectedContact { get; set; } = new();
+
+    private GetClientDTO selectedClient { get; set; } = new();
+
+    private IEnumerable<GetClientDTO>? Clients { get; set; }
+
+    [Parameter]
+    public Action GetAllContacts { get; set; } = null!;
+
+    private void SetSelectedContact(GetContactDTO getContactDTO)
+    {
+        selectedContact = getContactDTO;
+    }
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var listParams = new ListParameters();
+            Clients = clientService.GetAllClientsAsync(listParams);
+        }catch(DatabaseOperationException ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
+    private async Task LinkClientToContact()
+    {
+        try
+        {
+            if (selectedClient.ClientId == Guid.Empty)
+            {
+                await js.InvokeVoidAsync("alert", "Please select a client to be linked");
+            }
+            else
+            {
+                var clientId = selectedClient.ClientId;
+                var contactId = selectedContact.ContactId;
+                var isLinked = await contactService.LinkClientToContactAsync(contactId, clientId);
+                GetAllContacts();
+                if (isLinked)
+                    await js.InvokeVoidAsync("alert", $"This client has been linked to {selectedContact.Name}");
+
+                else
+                    await js.InvokeVoidAsync("alert", $"This client was already linked to {selectedContact.Name} and therefore has been unlinked.");
+            }
+
+        }
+        catch (DatabaseOperationException ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
 }
