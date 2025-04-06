@@ -1,4 +1,5 @@
-﻿@using ClientsAppUI.Components.Contacts
+﻿@using ClientsAppUI.Components
+@using ClientsAppUI.Components.Contacts
 @using ClientsDataAccessLib.DTOs.Contacts
 @using ClientsDataAccessLib.Exceptions
 @using ClientsDataAccessLib.Services
@@ -8,9 +9,10 @@
 
 <div class="frame">
     <div class="left">
-        <AddContact GetAllContacts="@GetAllContacts"/>
+         <InfoCard Title="@Title" Description="@Description" LinkAddress="Clients" LinkText="Manage Clients"/>
     </div>
     <div class="right">
+        <AddContact GetAllContacts="@GetAllContacts"/>
     </div>
     <div class="bottom">
         <ContactList Contacts="@contacts"/>
@@ -18,6 +20,9 @@
 </div>
 
 @code {
+    public string Title = "Manage Contacts";
+
+    public string Description = "Here you can view and manage all the available contact details along with linking them to clients.";
 
     private IEnumerable<GetContactDTO>? contacts { get; set; }
 

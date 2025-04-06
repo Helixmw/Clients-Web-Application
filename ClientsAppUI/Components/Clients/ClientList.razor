@@ -1,10 +1,12 @@
-﻿@using ClientsAppUI.Models
+﻿@using ClientsAppUI.Enums
+@using ClientsAppUI.Models
 @using ClientsDataAccessLib.DTOs.Clients
 @using ClientsDataAccessLib.DTOs.Contacts
 @using ClientsDataAccessLib.Exceptions
 @using ClientsDataAccessLib.Services
 @inject IJSRuntime js
 @inject IClientService clientService
+@inject IContactService contactService
 
 
 
@@ -19,7 +21,8 @@
 
                     <th scope="col">Name</th>
                     <th scope="col">Code</th>
-                    <th scope="col">Total Contacts</th>
+                    @* <th scope="col">Total Contacts</th> *@
+                    <th scope="col">&nbsp;</th>
                     <th scope="col">&nbsp;</th>
                 </tr>
             </thead>
@@ -30,11 +33,21 @@
                     <tr>
                         <td>@client.Name</td>
                         <td>@client.Code</td>
-                        <td>@client.TotalContacts</td>
+                        <td>
+                            <button type="button" class="btn btn-light btn-sm"
+                            @onclick="() => SetSelectedClient(client, QueryType.WithContacts)"
+                            data-bs-toggle="modal" data-bs-target="#viewContactsModal">
+                                Contacts &nbsp;<span class="badge bg-success">
+                                    @client.TotalContacts
+                                </span>
+                            </button>
+                        </td>
+                        @* <td>@client.TotalContacts</td> *@
                         <td class="button-controls">
                             <div class="table-buttons">
-                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal" @onclick="() => SetSelectedClient(client)">Link Contact</button>
-                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="() => SetSelectedClient(client)">Delete</button>
+                                <button type="button" class="btn btn-outline-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editClientModal" @onclick="() => SetSelectedClient(client, QueryType.WithoutContacts)">Edit</button>
+                                <button type="button" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#exampleModal" @onclick="() => SetSelectedClient(client, QueryType.WithoutContacts)">Link Contact</button>
+                                <button type="button" class="btn btn-danger btn-sm" data-bs-toggle="modal" data-bs-target="#deleteModal" @onclick="() => SetSelectedClient(client, QueryType.WithoutContacts)">Delete</button>
                             </div> 
 
                         </td>
@@ -46,6 +59,38 @@
         </table>
     </div>
 }
+
+
+<!-- Edit Modal -->
+<div class="modal fade" id="editClientModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <EditForm Model="@clientContact" OnValidSubmit="UpdateClient">
+
+                <div class="modal-header">
+                    <h5 class="modal-title" id="exampleModalLabel">Link Contact To Client</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                </div>
+                <div class="modal-body">
+
+                    <h4>@selectedClient.Name</h4>
+                    <h6 class="text-secondary">@selectedClient.Code</h6>
+
+                    <div class="mb-3">
+                        <label for="Name" class="form-label">Client Name*</label>
+                        <InputText class="form-control" id="name" Placeholder="Enter Client Name" @bind-Value="selectedClient.Name" />
+                    </div>
+
+
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Save Changes</button>
+                </div>
+            </EditForm>
+        </div>
+    </div>
+</div>
 
 
 <!-- Link Contact Modal -->
@@ -60,6 +105,7 @@
                 <div class="modal-body">
                     @if(Contacts is not null){
                         <h4>@selectedClient.Name</h4>
+                        <h6 class="text-secondary">@selectedClient.Code</h6>
 
                         <div class="form-floating">
                             <select class="form-select" id="floatingSelect"
@@ -97,13 +143,70 @@
             </div>
             <div class="modal-body">
                 <h4 class="text-danger fw-bold">@selectedClient.Name</h4>
-                <span class="text-danger fw-bold">Are you sure you want to delete this client? This action cannot be undone.</span>
+                <span class="text-danger fw-bold">@selectedClient.Code</span>
+                <br/>
+
+
+                <span class="text-danger fw-bold delete-code">Are you sure you want to delete this client? This action cannot be undone.</span>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-outline-danger" data-bs-dismiss="modal">No</button>
 
                 <button type="button" class="btn btn-danger" data-bs-dismiss="modal" @onclick="() => DeleteSelectedClient()">Yes</button>
 
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- View Linked Contacts Modal -->
+<div class="modal fade" id="viewContactsModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h1 class="modal-title fs-5" id="exampleModalLabel">Linked Contacts</h1>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                @if (Contacts is not null)
+                {
+                    <h4>@selectedClient.Name</h4>
+                    <h6 class="text-secondary">@selectedClient.Code</h6>
+
+                    @if (ClientContacts?.Count > 0)
+                    {
+                        <div class="contact-list">
+                            <ol class="list-group list-group-numbered">
+
+                                @foreach(var contact in ClientContacts)
+                                {
+                                    <li class="list-group-item d-flex justify-content-between align-items-start">
+                                        <div class="ms-2 me-auto">
+                                            <div class="fw-bold">@contact.Name @contact.Surname</div>
+                                            @contact.Email
+                                        </div>
+                                        <span class="badge bg-primary rounded-pill contact-badge">@contact.TotalClients</span>
+                                    </li>
+
+                                }
+                                
+
+
+
+                            </ol>
+                        </div>
+                    }
+                    else
+                    {
+                        <p class="fs-5 align-self-center mt-4 text-primary">No Linked Contacts</p>
+
+                    }
+
+
+                }
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-primary" data-bs-dismiss="modal">Close</button>             
             </div>
         </div>
     </div>
@@ -128,8 +231,23 @@
 
     private GetClientDTO selectedClient { get; set; } = new();
 
-    private void SetSelectedClient(GetClientDTO getClientDTO)
+    private List<GetContactDTO>? ClientContacts { get; set; }
+
+    private void SetSelectedClient(GetClientDTO getClientDTO, QueryType queryType)
     {
+        switch (queryType)
+        {
+            case QueryType.WithContacts:
+
+                ClientContacts = (List<GetContactDTO>) contactService.GetAllContactsByClientId(getClientDTO.ClientId);
+                selectedClient = getClientDTO;
+                
+                selectedClient = getClientDTO;
+                break;
+            case QueryType.WithoutContacts:
+                selectedClient = getClientDTO;
+                break;
+        }
         selectedClient = getClientDTO;
     }
 
@@ -166,6 +284,33 @@
         {
             await clientService.DeleteClientAsync(selectedClient.ClientId);
             GetAllClients();
+        }catch(DatabaseOperationException ex)
+        {
+            await js.InvokeVoidAsync("alert", ex.Message);
+        }
+    }
+
+    private async Task UpdateClient()
+    {
+        try
+        {
+            if(selectedClient.Name.Trim() == String.Empty)
+            {
+                await js.InvokeVoidAsync("alert", "A client name cannot be empty.");
+            }
+            else
+            {
+                var client = new UpdateClientDTO
+                    {
+                        ClientId = selectedClient.ClientId,
+                        Name = selectedClient.Name,
+                        Code = selectedClient.Code
+                    };
+                await clientService.UpdateClientAsync(client);
+            }
+            GetAllClients();
+            await js.InvokeVoidAsync("bootstrapInterop.closeModal", "#editClientModal");              
+
         }catch(DatabaseOperationException ex)
         {
             await js.InvokeVoidAsync("alert", ex.Message);

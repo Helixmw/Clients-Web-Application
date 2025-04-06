@@ -1,0 +1,24 @@
+﻿<div class="card full-card">
+
+    <h3 class="fw-bold">@Title</h3>
+    <h6 class="text-secondary">@Description</h6>
+    <p><a class="link-offset-2" href="@LinkAddress">@LinkText</a></p>
+
+
+</div>
+
+@code {
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    [Parameter]
+    public string Description { get; set; } = string.Empty;
+
+    [Parameter]
+    public string LinkAddress { get; set; } = string.Empty;
+
+    [Parameter]
+    public string LinkText{ get; set; } = string.Empty;
+
+
+}

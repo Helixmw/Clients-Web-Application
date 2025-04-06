@@ -59,6 +59,19 @@ namespace ClientsDataAccessLib.Services
             }
         }
 
+        public IEnumerable<GetContactDTO> GetAllContactsByClientId(Guid clientId)
+        {
+            try
+            {
+                var contacts = _contactRepository.GetAllContactsByClientId(clientId);
+                return contacts;
+            }
+            catch (Exception)
+            {
+                throw new DatabaseOperationException("Unable to get all contacts by client id", "Contact Operation Failed");
+            }
+        }
+
         //Link a client to a contact
         public async Task LinkClientToContactAsync(Guid contactId, Guid clientId)
         {

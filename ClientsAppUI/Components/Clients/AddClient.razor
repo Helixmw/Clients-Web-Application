@@ -31,7 +31,7 @@
     {
         try
         {
-            addClientDTO.Code = "SAMPLE123";
+
             await clientService.AddClientAsync(addClientDTO);
             GetAllClients();
             var msg = $"Successfully added {addClientDTO.Name}";

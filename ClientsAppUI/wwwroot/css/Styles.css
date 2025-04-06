@@ -42,5 +42,18 @@
     grid-column:2/3;
 }
 
+.contact-list{
+    border-top:1px solid black;
+    padding:0.5rem 0.2rem;
+    height:20rem;
+}
+
+.full-card{
+    height:100%;
+}
+
+.contact-badge {
+    margin-top: 0.7rem;
+}
 
 

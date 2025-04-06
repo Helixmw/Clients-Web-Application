@@ -14,6 +14,8 @@ namespace ClientsDataAccessLib.Services
 
         IEnumerable<GetContactDTO> GetAllContacts(ListParameters listParameters);
 
+        IEnumerable<GetContactDTO> GetAllContactsByClientId(Guid clientId);
+
         Task UpdateContactAsync(UpdateContactDTO contact);
 
         Task DeleteContactAsync(Guid contactId);

@@ -86,6 +86,42 @@ namespace ClientsDataAccessLib.Repositories
 
         }
 
+        public IEnumerable<GetContactDTO> GetAllContactsByClientId(Guid clientId)
+        {
+            var contacts = new List<GetContactDTO>();
+            var client = _dbContext?.Clients.FirstOrDefault(x => x.ClientId == clientId);
+            
+            if(client is null)
+                throw new DatabaseOperationException("Unable to find this client. Please try later", "Operation Failed");
+            
+                
+
+                contacts = _dbContext?.Contacts
+                                .OrderBy(x => x.Name)
+                                .AsEnumerable()
+                                .Join(_dbContext.ClientContacts.Where(x => x.ClientId == clientId).ToList(),
+                                            cnts => cnts.ContactId,
+                                            ccts => ccts.ContactId,
+                                            (cnts, ccts) => {
+                                                var count = _dbContext.ClientContacts.Where(x => x.ContactId == cnts.ContactId).Count();
+                                               return new GetContactDTO
+                                                {
+                                                    ContactId = cnts.ContactId,
+                                                    Name = cnts.Name,
+                                                    Surname = cnts.Surname,
+                                                    Email = cnts.Email,
+                                                    TotalClients = count
+                                                };
+                                            }).ToList();
+            
+            if (contacts is null)
+                throw new DatabaseOperationException("Unable to get contacts please try later", "Operation Failed");
+
+            return contacts;
+
+
+        }
+
         //Links a contact to a client
         public async Task LinkToClientAsync(Guid contactId, Guid clientId)
         {

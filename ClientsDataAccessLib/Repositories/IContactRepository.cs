@@ -19,5 +19,7 @@ namespace ClientsDataAccessLib.Repositories
         Task DeleteAsync(Guid contactId);
 
         Task LinkToClientAsync(Guid contactId, Guid clientId);
+
+        IEnumerable<GetContactDTO> GetAllContactsByClientId(Guid clientId);
     }
 }
